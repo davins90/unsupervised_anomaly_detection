@@ -1,0 +1,7 @@
+name: prod
+dependencies:
+  - python=3.8
+  - ipykernel
+  - pip
+  - pip:
+    - -r requirements_prod.txt

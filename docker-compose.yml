@@ -1,0 +1,43 @@
+version: '3'
+services:
+  environment_4b:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: environment_4b
+    working_dir: '/src'
+    tty: true
+    volumes:
+      - ./src:/src
+      - ./src/data_lake:/src/data_lake
+      - ./src/data_lake/input:/src/data_lake/input
+      - ./src/data_lake/output:/src/data_lake/output
+      - ./src/notebooks:/src/notebooks
+      - ./src/modules:/src/modules
+      - ./src/debug:/src/debug
+      - ./src/docs:/src/docs
+    ports: 
+      - '8080:8080'
+    command: jupyter-lab --ip 0.0.0.0 --port=8080 --allow-root --no-browser --NotebookApp.token=''
+
+  spark_env:
+    restart: always
+    build: 
+      context: .
+      dockerfile: Dockerfile_spark
+    container_name: spark_env
+    working_dir: '/src'
+    tty: true
+    volumes: 
+      - ./src:/src
+      - ./src/data_lake:/src/data_lake
+      - ./src/data_lake/input:/src/data_lake/input
+      - ./src/data_lake/output:/src/data_lake/output
+      - ./src/notebooks:/src/notebooks
+      - ./src/modules:/src/modules
+      - ./src/debug:/src/debug
+      - ./src/docs:/src/docs
+    ports: 
+      - '8888:8888'
+    command: jupyter-lab --ip 0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
