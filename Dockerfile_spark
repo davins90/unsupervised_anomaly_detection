@@ -1,7 +1,7 @@
 FROM jupyter/pyspark-notebook:python-3.9.13
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY packages/requirements_spark.txt .
+RUN pip install -r requirements_spark.txt
 
 WORKDIR /src
 COPY . /src
