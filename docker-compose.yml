@@ -41,3 +41,18 @@ services:
     ports: 
       - '8888:8888'
     command: jupyter-lab --ip 0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
+
+  stremlit:
+    restart: always
+    build: 
+      context: .
+      dockerfile: Dockerfile_streamlit
+    container_name: stremlit
+    working_dir: '/src'
+    tty: true
+    volumes: 
+      - ./src:/src
+      - ./src/app:/src/app
+    ports: 
+      - '8501:8501'
+    command: streamlit run app/app.py
