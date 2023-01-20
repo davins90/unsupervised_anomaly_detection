@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import prince
+import gower
+import heapq
 import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objects as pgo
@@ -27,8 +29,13 @@ from sklearn.metrics import classification_report
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.calibration import calibration_curve
 from sklearn.preprocessing import FunctionTransformer
+from kmodes.kprototypes import KPrototypes
+from sklearn.metrics import silhouette_score
 
 pio.renderers.default='iframe'
+
+imp_mean = IterativeImputer(random_state=0)
+imp_mean2 = SimpleImputer(strategy='constant', fill_value='missing',verbose=0,add_indicator=True)
 scaler = MinMaxScaler()
 
 ###
@@ -181,7 +188,7 @@ def plot_coordinates_plotly(model, X, x_component=0, y_component=1, z_component=
 def log_transform(x):
     return np.log(x + 1)
 
-def model_training(X_train, y_train, numerical_cols, categorical_cols,parameters):
+def model_training(X_train, y_train, numerical_cols, categorical_cols,parameters,multiclass):
     """
     
     """
@@ -202,7 +209,10 @@ def model_training(X_train, y_train, numerical_cols, categorical_cols,parameters
     ##
     # ('model', CalibratedClassifierCV(base_estimator=pipe_model,method='isotonic'))])
     ##
-    model_grid = GridSearchCV(model,parameters,cv=4,scoring='recall',verbose=0,return_train_score=True).fit(X_train,y_train)
+    if multiclass == 'no':
+        model_grid = GridSearchCV(model,parameters,cv=4,scoring='recall',verbose=0,return_train_score=True).fit(X_train,y_train)
+    else:
+        model_grid = GridSearchCV(model,parameters,cv=4,scoring='accuracy',verbose=0,return_train_score=True).fit(X_train,y_train)
     print('GridSearchCV results...')
     print("Mean Train Scores: \n{}\n".format(model_grid.cv_results_['mean_train_score']))
     print("Mean CV Scores: \n{}\n".format(model_grid.cv_results_['mean_test_score']))
@@ -371,4 +381,125 @@ def features_eng(df, version):
     df['device_info_v4'] = df['device_info_v4'].mask(((df['device_info3']=='motog3') |(df['device_info3']=='moto')),'moto')
     df['device_info_v4'] = df['device_info_v4'].mask(((df['device_info3']=='sm') |(df['device_info3']=='samsung')),'samsung')
     df = df.drop(columns=['device_info','device_info2','device_info3','DeviceInfo'])
+    return df
+
+### Clustering
+
+def clustering_preparation(df,version):
+    """
+    
+    """
+    numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
+    categorical_cols = df.select_dtypes(include=['object', 'bool']).columns
+    for i in df:
+        if i in numerical_cols:
+            if i != 'customer_id':
+                df[i] = imp_mean.fit_transform(X = df[i].values.reshape(-1,1))
+                df[i] = scaler.fit_transform(X = df[i].values.reshape(-1,1))
+    for i in df:
+        if i in categorical_cols:
+            df[i] = df[i].astype(str)
+            df[i] = imp_mean2.fit_transform(X = df[i].values.reshape(-1,1))
+    if version == 'training':
+        return df, imp_mean, imp_mean2, scaler
+    elif version == 'prediction':
+        return df
+    
+def clustering_encoding(df):
+    """
+    
+    """
+    # Product
+    df['product_enc'] = 999
+    df['product_enc'] = df['product_enc'].mask(df['ProductCD']=='C',0)
+    df['product_enc'] = df['product_enc'].mask(df['ProductCD']=='H',1)
+    df['product_enc'] = df['product_enc'].mask(df['ProductCD']=='S',2)
+    df['product_enc'] = df['product_enc'].mask(df['ProductCD']=='R',3)
+    df = df.drop(columns='ProductCD')
+    # Card4
+    df['card4_enc'] = 999
+    df['card4_enc'] = df['card4_enc'].mask(df['card4']=='visa',0)
+    df['card4_enc'] = df['card4_enc'].mask(df['card4']=='mastercard',1)
+    df['card4_enc'] = df['card4_enc'].mask(df['card4']=='american express',2)
+    df['card4_enc'] = df['card4_enc'].mask(df['card4']=='discover',3)
+    df = df.drop(columns='card4')
+    # Card6
+    df['card6_enc'] = 999
+    df['card6_enc'] = df['card6_enc'].mask(df['card6']=='debit',0)
+    df['card6_enc'] = df['card6_enc'].mask(df['card6']=='credit',1)
+    df = df.drop(columns='card6')
+    # Device Type
+    df['DeviceType_enc'] = 999
+    df['DeviceType_enc'] = df['DeviceType_enc'].mask(df['DeviceType']=='mobile',0)
+    df['DeviceType_enc'] = df['DeviceType_enc'].mask(df['DeviceType']=='desktop',1)
+    df['DeviceType_enc'] = df['DeviceType_enc'].mask(df['DeviceType']=='tablet',2)
+    df = df.drop(columns='DeviceType')
+    # Browser
+    df['browser_enc2'] = 7
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='chrome',0)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='safari',1)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='firefox',2)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='ie',3)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='android',4)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='edge',5)
+    df['browser_enc2'] = df['browser_enc2'].mask(df['browser_enc']=='opera',6)
+    df = df.drop(columns='browser_enc')
+    # Device info
+    df['device_info_v4_enc'] = 17
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='ios',0)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='windows',1)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='samsung',2)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='hisense',3)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='moto',4)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='pixel',5)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='lg',6)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='blade',7)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='huawei',8)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='oneplus',9)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='alcatel',10)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='redmi',11)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='lenovo',12)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='asus',13)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='linux',14)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='android',15)
+    df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='zte',16)
+    df = df.drop(columns='device_info_v4')
+    # Index
+    df = df.set_index('customer_id')
+    return df
+
+def clustering_main(df,version,max_cluster,choose_n_cluster):
+    """
+    
+    """
+    if version == 'training':
+        sil=[]
+        dft = df.copy()
+        for num_clusters in list(range(2,max_cluster)):
+            kproto = KPrototypes(n_clusters=num_clusters, verbose=0,random_state = 301,n_init=5)
+            cluster_labels = kproto.fit_predict(dft.values, categorical=[3,4,5,6,7,8])
+            dft['cluster_labels'] = cluster_labels
+            dist = gower.gower_matrix(dft.drop(columns=['cluster_labels']),cat_features = [False, False ,False, True, True,True,True,True,True])
+            sil.append(silhouette_score(dist,labels=cluster_labels, metric='precomputed'))
+            print('For cluster number: ',num_clusters,' the score is: ', sil[-1])
+    elif version == 'choosen':
+        kproto = KPrototypes(n_clusters=choose_n_cluster, verbose=0,random_state = 301)
+        cluster_labels = kproto.fit_predict(df.values, categorical=[3,4,5,6,7,8])
+        centroid = []
+        for j,i in enumerate(kproto.cluster_centroids_):
+            centroid.append(pd.DataFrame(i,index=['TransactionAmt','max_c', 'max_d','product_enc', 'card4_enc', 'card6_enc',
+               'DeviceType_enc', 'browser_enc2', 'device_info_v4_enc'],columns=[j]))
+        centroid = pd.concat(centroid,axis=1)
+        centroid.style.background_gradient(cmap='brg',axis=1)
+        df['cluster_labels'] = cluster_labels
+        print(df['cluster_labels'].value_counts())
+        return df, centroid, kproto
+    
+def clustering_prediction(df,model):
+    """
+    
+    """
+    df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'max_c', 'max_d',
+                                                    'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
+                                                    'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
     return df
