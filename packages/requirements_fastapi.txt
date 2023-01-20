@@ -1,0 +1,12 @@
+fastapi==0.89.0
+gunicorn
+uvicorn
+pandas
+scikit-learn
+scipy
+six
+joblib
+numpy
+pydantic
+httptools
+uvloop
