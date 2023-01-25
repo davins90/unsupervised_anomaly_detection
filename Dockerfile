@@ -10,8 +10,10 @@ ENV PATH=/anaconda/bin:$PATH
 COPY packages packages
 
 RUN conda env update -f packages/environment_dev.yml
-RUN jupyter kernelspec remove -f python3
-RUN python -m ipykernel install --name python3 --display-name "dev"
+# add following line for facing problem with installing dependencies on dev env
+SHELL ["conda","run","-n","dev","/bin/bash","-c"]
+# RUN jupyter kernelspec remove -f python3
+RUN python -m ipykernel install --name dev --display-name "dev"
 
 
 RUN conda env create -f packages/environment_prod.yml

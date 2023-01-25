@@ -124,36 +124,36 @@ def compute_mca(model, df, n_components, n_iter, copy, check_input, engine, rand
     print("MCA explained variance: ", mca.explained_inertia_)
     return mca
 
-# def plot_coordinates_plotly(model, X, x_component=0, y_component=1, show_column_points=True):
-#     """
+def plot_coordinates_plotly2d(model, X, x_component=0, y_component=1, show_column_points=True):
+    """
     
-#     """
-#     fig = pgo.Figure()
+    """
+    fig = pgo.Figure()
 
-#     # Plot column principal coordinates
-#     if show_column_points or show_column_labels:
+    # Plot column principal coordinates
+    if show_column_points or show_column_labels:
 
-#         col_coords = model.column_coordinates(X)
-#         x = col_coords[x_component]
-#         y = col_coords[y_component]
+        col_coords = model.column_coordinates(X)
+        x = col_coords[x_component]
+        y = col_coords[y_component]
 
-#         prefixes = col_coords.index.str.split('_').map(lambda x: x[0])
+        prefixes = col_coords.index.str.split('_').map(lambda x: x[0])
 
-#         fig.add_traces([pgo.Scatter(
-#             x=x[prefixes == prefix], 
-#             y=y[prefixes == prefix], 
-#             hovertext=col_coords[prefixes == prefix].index, 
-#             mode='markers',name=prefix) for prefix in prefixes.unique()])
+        fig.add_traces([pgo.Scatter(
+            x=x[prefixes == prefix], 
+            y=y[prefixes == prefix], 
+            hovertext=col_coords[prefixes == prefix].index, 
+            mode='markers',name=prefix) for prefix in prefixes.unique()])
 
-#     # Text
-#     fig.update_layout(showlegend=True)
-#     ei = model.explained_inertia_
-#     fig.update_xaxes(title_text='Component {} ({:.2f}% inertia)'.format(x_component, 100 * ei[x_component]))
-#     fig.update_yaxes(title_text='Component {} ({:.2f}% inertia)'.format(y_component, 100 * ei[y_component]))
+    # Text
+    fig.update_layout(showlegend=True)
+    ei = model.explained_inertia_
+    fig.update_xaxes(title_text='Component {} ({:.2f}% inertia)'.format(x_component, 100 * ei[x_component]))
+    fig.update_yaxes(title_text='Component {} ({:.2f}% inertia)'.format(y_component, 100 * ei[y_component]))
 
-#     return fig
+    return fig
 
-def plot_coordinates_plotly(model, X, x_component=0, y_component=1, z_component=2, show_column_points=True):
+def plot_coordinates_plotly3d(model, X, x_component=0, y_component=1, z_component=2, show_column_points=True):
     """
     3d
     """
@@ -195,21 +195,15 @@ def model_training(X_train, y_train, numerical_cols, categorical_cols,parameters
     
     ##
     transformer = FunctionTransformer(log_transform)
-    numerical_preprocessor = Pipeline(steps=[("imputer", IterativeImputer(ExtraTreesRegressor(n_estimators=5,random_state=1,verbose=0),random_state=1,verbose=0,add_indicator=True)),
+    numerical_preprocessor = Pipeline(steps=[("imputer", IterativeImputer(ExtraTreesRegressor(n_estimators=5,random_state=1),random_state=1,verbose=0,add_indicator=True)),
                                      ("scaler", transformer)]) #MinMaxScaler()
-    categorical_preprocessor = Pipeline(steps=[("imputer", SimpleImputer(strategy='constant', fill_value='missing',verbose=0,add_indicator=True)),
+    categorical_preprocessor = Pipeline(steps=[("imputer", SimpleImputer(strategy='constant', fill_value='missing',add_indicator=True)),
                                            ("label_enc", OneHotEncoder(handle_unknown='ignore'))])
     preprocessor = ColumnTransformer(transformers=[("numerical_preprocessor", numerical_preprocessor, numerical_cols),
                                                ("categorical_preprocessor", categorical_preprocessor, categorical_cols)])
-    pipe_model = GradientBoostingClassifier(random_state=0,n_iter_no_change=25,warm_start=True,max_features='auto')
+    pipe_model = GradientBoostingClassifier(random_state=0,n_iter_no_change=25,warm_start=True,max_features=1.0)
     ##
-    model = Pipeline(steps=[('preprocessor', preprocessor),
-
-                            
-                            
-                            
-                            C4g3s_w1ngs!
-                            C4g3s('model', pipe_model)])
+    model = Pipeline(steps=[('preprocessor', preprocessor),('model', pipe_model)])
     
     ##
     # ('model', CalibratedClassifierCV(base_estimator=pipe_model,method='isotonic'))])
@@ -298,19 +292,35 @@ def log_beta_transform(df,scaler,name1, name2):
             df[i+'_ris'] = beta.ppf(df[i+'_ris'], a, b)
     return df
 
-def warning_score(df):
+def warning_score_(df, weight_f1=0.8):
     """
     
     """
     df['warning_score'] = 0
-    w = [0.8,0.2]
-    df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
+    w = [weight_f1,1 - weight_f1]
+    df['warning_score'] = np.dot(df[['num_accounts_related_to_user_ris','num_days_previous_transaction_ris']],w)
     df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
     df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
     df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
-    df = df.drop(columns=['max_c_ris','max_d_ris'])
-    df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
+    df = df.drop(columns=['num_accounts_related_to_user_ris','num_days_previous_transaction_ris'])
+    df['warning_score'] = df['warning_score'].mask(df['num_accounts_related_to_user']<=1.0,df['warning_score']/2)
     return df
+
+
+
+# def warning_score(df):
+#     """
+    
+#     """
+#     df['warning_score'] = 0
+#     w = [0.8,0.2]
+#     df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
+#     df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
+#     df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
+#     df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
+#     df = df.drop(columns=['max_c_ris','max_d_ris'])
+#     df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
+#     return df
 
 def beta_fusion(prior, like, w_prior):
     """
@@ -337,6 +347,7 @@ def features_eng(df, version):
         df = df.drop(columns=['dist2','TransactionID'])
     elif version == 'anomaly':
         df = df.drop(columns=['dist2','customer_id','TransactionID'])
+    
     df = df.rename(columns={'id_31':'browser'})
     df['P_emaildomain'] = df['P_emaildomain'].mask(df['P_emaildomain']=='gmail','gmail.com')
     df['R_emaildomain'] = df['R_emaildomain'].mask(df['R_emaildomain']=='gmail','gmail.com')
@@ -492,7 +503,7 @@ def clustering_main(df,version,max_cluster,choose_n_cluster):
         cluster_labels = kproto.fit_predict(df.values, categorical=[3,4,5,6,7,8])
         centroid = []
         for j,i in enumerate(kproto.cluster_centroids_):
-            centroid.append(pd.DataFrame(i,index=['TransactionAmt','max_c', 'max_d','product_enc', 'card4_enc', 'card6_enc',
+            centroid.append(pd.DataFrame(i,index=['TransactionAmt','num_accounts_related_to_user', 'num_days_previous_transaction','product_enc', 'card4_enc', 'card6_enc',
                'DeviceType_enc', 'browser_enc2', 'device_info_v4_enc'],columns=[j]))
         centroid = pd.concat(centroid,axis=1)
         centroid.style.background_gradient(cmap='brg',axis=1)
@@ -504,7 +515,7 @@ def clustering_prediction(df,model):
     """
     
     """
-    df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'max_c', 'max_d',
+    df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
                                                     'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
                                                     'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
     return df
