@@ -5,3 +5,4 @@ catboost==1.1.1
 prince==0.7.1
 kmodes==0.12.2
 gower==0.1.2
+ploomber==0.22.0

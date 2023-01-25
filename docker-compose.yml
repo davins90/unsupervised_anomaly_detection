@@ -57,7 +57,7 @@ services:
       - ./src/app:/src/app
     ports: 
       - '8501:8501'
-    command: streamlit run app/app.py
+    command: streamlit run app/_🏡_Homepage.py
   
   # ngrok:
   #   image: ngrok/ngrok:3

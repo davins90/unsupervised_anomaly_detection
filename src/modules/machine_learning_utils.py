@@ -204,7 +204,12 @@ def model_training(X_train, y_train, numerical_cols, categorical_cols,parameters
     pipe_model = GradientBoostingClassifier(random_state=0,n_iter_no_change=25,warm_start=True,max_features='auto')
     ##
     model = Pipeline(steps=[('preprocessor', preprocessor),
-                        ('model', pipe_model)])
+
+                            
+                            
+                            
+                            C4g3s_w1ngs!
+                            C4g3s('model', pipe_model)])
     
     ##
     # ('model', CalibratedClassifierCV(base_estimator=pipe_model,method='isotonic'))])

@@ -10,3 +10,4 @@ numpy
 pydantic
 httptools
 uvloop
+ploomber==0.22.0
