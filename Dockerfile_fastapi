@@ -1,4 +1,4 @@
-FROM jupyter/pyspark-notebook:python-3.9.13
+FROM jupyter/datascience-notebook:python-3.9.2
 
 COPY packages/requirements_fastapi.txt .
 RUN pip install -r requirements_fastapi.txt

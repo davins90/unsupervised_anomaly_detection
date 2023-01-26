@@ -11,7 +11,7 @@ def data_retrieval(url):
     if '1pCcXTt5OURpAoo0JCuDqFrQt3vo_xmT3' in url:
         df = pd.read_csv(dwn_url)
     else:
-        output = "../../data_lake/input/transaction_raw.csv"
+        output = "../../../data_lake/input/transaction_raw.csv"
         gdown.download(dwn_url,output,quiet=False)
         # remove from dataframe columns related to Vesta's generated features
         df = pd.read_csv(output,usecols=lambda x: "V" not in x)

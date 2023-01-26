@@ -292,7 +292,7 @@ def log_beta_transform(df,scaler,name1, name2):
             df[i+'_ris'] = beta.ppf(df[i+'_ris'], a, b)
     return df
 
-def warning_score_(df, weight_f1=0.8):
+def warning_score_prod(df, weight_f1=0.8):
     """
     
     """
@@ -308,19 +308,19 @@ def warning_score_(df, weight_f1=0.8):
 
 
 
-# def warning_score(df):
-#     """
+def warning_score_dev(df):
+    """
     
-#     """
-#     df['warning_score'] = 0
-#     w = [0.8,0.2]
-#     df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
-#     df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
-#     df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
-#     df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
-#     df = df.drop(columns=['max_c_ris','max_d_ris'])
-#     df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
-#     return df
+    """
+    df['warning_score'] = 0
+    w = [0.8,0.2]
+    df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
+    df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
+    df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
+    df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
+    df = df.drop(columns=['max_c_ris','max_d_ris'])
+    df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
+    return df
 
 def beta_fusion(prior, like, w_prior):
     """
@@ -511,11 +511,16 @@ def clustering_main(df,version,max_cluster,choose_n_cluster):
         print(df['cluster_labels'].value_counts())
         return df, centroid, kproto
     
-def clustering_prediction(df,model):
+def clustering_prediction(df,model,version):
     """
     
     """
-    df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
+    if version == "prod":
+        df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
+                                                    'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
+                                                    'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
+    else:
+        df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'max_c', 'max_d',
                                                     'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
                                                     'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
     return df
