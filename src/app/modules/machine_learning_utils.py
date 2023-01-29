@@ -292,7 +292,7 @@ def log_beta_transform(df,scaler,name1, name2):
             df[i+'_ris'] = beta.ppf(df[i+'_ris'], a, b)
     return df
 
-def warning_score_(df, weight_f1=0.8):
+def warning_score_prod(df, weight_f1=0.8):
     """
     
     """
@@ -308,19 +308,19 @@ def warning_score_(df, weight_f1=0.8):
 
 
 
-# def warning_score(df):
-#     """
+def warning_score_dev(df):
+    """
     
-#     """
-#     df['warning_score'] = 0
-#     w = [0.8,0.2]
-#     df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
-#     df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
-#     df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
-#     df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
-#     df = df.drop(columns=['max_c_ris','max_d_ris'])
-#     df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
-#     return df
+    """
+    df['warning_score'] = 0
+    w = [0.8,0.2]
+    df['warning_score'] = np.dot(df[['max_c_ris','max_d_ris']],w)
+    df['warning_score'] = df['warning_score'].mask(df['device_info_v4'] == 'other',df['warning_score']+0.05)
+    df['warning_score'] = df['warning_score'].mask(df['browser_enc'] == 'other',df['warning_score']+0.1)
+    df['warning_score'] = df['warning_score'].mask(df['warning_score']>=1,0.95)
+    df = df.drop(columns=['max_c_ris','max_d_ris'])
+    df['warning_score'] = df['warning_score'].mask(df['max_c']<=1.0,df['warning_score']/2)
+    return df
 
 def beta_fusion(prior, like, w_prior):
     """
@@ -347,6 +347,8 @@ def features_eng(df, version):
         df = df.drop(columns=['dist2','TransactionID'])
     elif version == 'anomaly':
         df = df.drop(columns=['dist2','customer_id','TransactionID'])
+    elif version == 'network':
+        df = df.drop(columns=['dist2'])
     df = df.rename(columns={'id_31':'browser'})
     df['P_emaildomain'] = df['P_emaildomain'].mask(df['P_emaildomain']=='gmail','gmail.com')
     df['R_emaildomain'] = df['R_emaildomain'].mask(df['R_emaildomain']=='gmail','gmail.com')
@@ -400,27 +402,36 @@ def features_eng(df, version):
 
 ### Clustering
 
-def clustering_preparation(df,version):
+def clustering_preparation(df,version,imputation_num, scaler_num,imputation_cat):
     """
     
     """
     numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
     categorical_cols = df.select_dtypes(include=['object', 'bool']).columns
-    for i in df:
-        if i in numerical_cols:
-            if i != 'customer_id':
-                df[i] = imp_mean.fit_transform(X = df[i].values.reshape(-1,1))
-                df[i] = scaler.fit_transform(X = df[i].values.reshape(-1,1))
-    for i in df:
-        if i in categorical_cols:
-            df[i] = df[i].astype(str)
-            df[i] = imp_mean2.fit_transform(X = df[i].values.reshape(-1,1))
-    if version == 'training':
+    if version == "training":
+        for i in df:
+            if i in numerical_cols:
+                if i != 'customer_id':
+                    df[i] = imp_mean.fit_transform(X = df[i].values.reshape(-1,1))
+                    df[i] = scaler.fit_transform(X = df[i].values.reshape(-1,1))
+        for i in df:
+            if i in categorical_cols:
+                df[i] = df[i].astype(str)
+                df[i] = imp_mean2.fit_transform(X = df[i].values.reshape(-1,1))
         return df, imp_mean, imp_mean2, scaler
     elif version == 'prediction':
+        for i in df:
+            if i in numerical_cols:
+                if i != 'customer_id':
+                    df[i] = imputation_num.transform(X = df[i].values.reshape(-1,1))
+                    df[i] = scaler_num.transform(X = df[i].values.reshape(-1,1))
+        for i in df:
+            if i in categorical_cols:
+                df[i] = df[i].astype(str)
+                df[i] = imputation_cat.transform(X = df[i].values.reshape(-1,1))
         return df
     
-def clustering_encoding(df):
+def clustering_encoding(df,version):
     """
     
     """
@@ -480,7 +491,10 @@ def clustering_encoding(df):
     df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='zte',16)
     df = df.drop(columns='device_info_v4')
     # Index
-    df = df.set_index('customer_id')
+    if version == 'training':
+        df = df.set_index('customer_id')
+    else:
+        pass
     return df
 
 def clustering_main(df,version,max_cluster,choose_n_cluster):
@@ -510,11 +524,16 @@ def clustering_main(df,version,max_cluster,choose_n_cluster):
         print(df['cluster_labels'].value_counts())
         return df, centroid, kproto
     
-def clustering_prediction(df,model):
+def clustering_prediction(df,model,version):
     """
     
     """
-    df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
+    if version == "prod":
+        df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
+                                                    'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
+                                                    'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
+    else:
+        df['cluster_labels_pred'] = model.predict(X=df[['TransactionAmt', 'max_c', 'max_d',
                                                     'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2',
                                                     'device_info_v4_enc']],categorical=[3,4,5,6,7,8])
     return df

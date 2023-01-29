@@ -347,7 +347,8 @@ def features_eng(df, version):
         df = df.drop(columns=['dist2','TransactionID'])
     elif version == 'anomaly':
         df = df.drop(columns=['dist2','customer_id','TransactionID'])
-    
+    elif version == 'network':
+        df = df.drop(columns=['dist2'])
     df = df.rename(columns={'id_31':'browser'})
     df['P_emaildomain'] = df['P_emaildomain'].mask(df['P_emaildomain']=='gmail','gmail.com')
     df['R_emaildomain'] = df['R_emaildomain'].mask(df['R_emaildomain']=='gmail','gmail.com')
@@ -401,27 +402,36 @@ def features_eng(df, version):
 
 ### Clustering
 
-def clustering_preparation(df,version):
+def clustering_preparation(df,version,imputation_num, scaler_num,imputation_cat):
     """
     
     """
     numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
     categorical_cols = df.select_dtypes(include=['object', 'bool']).columns
-    for i in df:
-        if i in numerical_cols:
-            if i != 'customer_id':
-                df[i] = imp_mean.fit_transform(X = df[i].values.reshape(-1,1))
-                df[i] = scaler.fit_transform(X = df[i].values.reshape(-1,1))
-    for i in df:
-        if i in categorical_cols:
-            df[i] = df[i].astype(str)
-            df[i] = imp_mean2.fit_transform(X = df[i].values.reshape(-1,1))
-    if version == 'training':
+    if version == "training":
+        for i in df:
+            if i in numerical_cols:
+                if i != 'customer_id':
+                    df[i] = imp_mean.fit_transform(X = df[i].values.reshape(-1,1))
+                    df[i] = scaler.fit_transform(X = df[i].values.reshape(-1,1))
+        for i in df:
+            if i in categorical_cols:
+                df[i] = df[i].astype(str)
+                df[i] = imp_mean2.fit_transform(X = df[i].values.reshape(-1,1))
         return df, imp_mean, imp_mean2, scaler
     elif version == 'prediction':
+        for i in df:
+            if i in numerical_cols:
+                if i != 'customer_id':
+                    df[i] = imputation_num.transform(X = df[i].values.reshape(-1,1))
+                    df[i] = scaler_num.transform(X = df[i].values.reshape(-1,1))
+        for i in df:
+            if i in categorical_cols:
+                df[i] = df[i].astype(str)
+                df[i] = imputation_cat.transform(X = df[i].values.reshape(-1,1))
         return df
     
-def clustering_encoding(df):
+def clustering_encoding(df,version):
     """
     
     """
@@ -481,7 +491,10 @@ def clustering_encoding(df):
     df['device_info_v4_enc'] = df['device_info_v4_enc'].mask(df['device_info_v4']=='zte',16)
     df = df.drop(columns='device_info_v4')
     # Index
-    df = df.set_index('customer_id')
+    if version == 'training':
+        df = df.set_index('customer_id')
+    else:
+        pass
     return df
 
 def clustering_main(df,version,max_cluster,choose_n_cluster):

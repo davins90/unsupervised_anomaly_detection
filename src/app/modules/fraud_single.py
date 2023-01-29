@@ -39,7 +39,6 @@ def main():
             
     
     if st.button("Submit"):
-        payload = features
-        result = requests.post(f"http://fast_api:8000/predict/",json=payload).json()
-        st.success(result)
+        result = requests.post(f"http://fast_api:8000/predict_fraud/",json=features).json()
+        st.write(result)
     
