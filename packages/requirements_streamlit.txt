@@ -8,3 +8,4 @@ prince==0.7.1
 kmodes==0.12.2
 gower==0.1.2
 ploomber==0.22.0
+pyvis==0.3.1
