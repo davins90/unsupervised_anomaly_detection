@@ -8,6 +8,7 @@ def main():
     import prince
     
     from modules import machine_learning_utils as mlu
+    from modules import knowledge_graph_utils as kg
     from io import BytesIO
     
     st.title("connect")
@@ -57,5 +58,45 @@ def main():
     fig = px.histogram(num[col],nbins=20)
     fig.show()
     st.plotly_chart(fig)
+    
+    # 4.0 Network Analysis
+        
+    file = "https://github.com/davins90/unsupervised_anomaly_detection/blob/master/src/data_lake/output_prod/df_under.pkl?raw=true"
+    db2 = BytesIO(requests.get(file).content)
+    df2 = pickle.load(db2)
+
+    df2 = mlu.features_eng(df2,'network')
+    df2 = df2[['customer_id','TransactionID','TransactionAmt','DeviceType','device_info_v4','browser_enc','ProductCD','isFraud']]
+
+    df2 = df2.dropna(axis=0)
+    df2 = df2.sample(frac=0.0005,random_state=4)
+
+    for i in df2:
+        if i != 'TransactionAmt':
+            df2[i] = df2[i].astype(str)
+
+    rel1 = ['customer_id','TransactionID','has done']
+    rel2 = ['TransactionID','ProductCD','buying']
+    rel3 = ['ProductCD','DeviceType','by']
+    rel4 = ['TransactionID','DeviceType','with']
+    rel5 = ['TransactionID','browser_enc','on']
+
+    rels = [rel1,rel2,rel3,rel4,rel5]
+
+    dt = kg.building_relation_dict(rels)
+
+    final = kg.building_adj_list(dt,df2)
+
+    # extract only fraud
+    df3 = df2[df2['isFraud']=='1']
+
+    rel1 = ['customer_id','TransactionID','has done']
+    rels = [rel1]
+
+    dt2 = kg.building_relation_dict(rels)
+
+    final2 = kg.building_adj_list(dt2,df3)
+
+    kg.building_network(final,final2,df2)
     
     

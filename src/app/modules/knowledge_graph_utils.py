@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
 
 from pyvis import network as net
 from pyvis.network import Network
 
-###
+# ##
 
 def building_relation_dict(rels):
     """
@@ -44,7 +45,7 @@ def building_adj_list(dt,df):
     final = final.drop_duplicates()
     return final
 
-def building_network(final,final2,df,num):
+def building_network(final,final2,df):
     """
     
     """
@@ -93,4 +94,11 @@ def building_network(final,final2,df,num):
     "solver": "repulsion"
   }
 }""")
-    return net.show("kg_v29_{}.html".format(num))
+    # save in cache
+    try:
+        path = '/tmp'
+        net.save_graph(f'{path}/pyvis_graph.html')
+        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+    except:
+        HtmlFile = open(f'app/modules/kg_v29_11.html', 'r', encoding='utf-8')
+    return components.html(HtmlFile.read(), height=900)

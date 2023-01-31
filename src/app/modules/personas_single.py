@@ -48,7 +48,7 @@ def main():
         if j == "customer_id":
             pass
         elif j in num_col:
-            features[j] = st.number_input('Insert number for {} related to the transaction under examination: '.format(j),key=i)
+            features[j] = st.number_input('Insert number for {} related to the transaction under examination: '.format(j),key=i,value=0.028)
         else:
             features[j] = st.selectbox("Select type of {} related to the transaction: ".format(j),df[j].unique(),key=i)
             
@@ -61,11 +61,13 @@ def main():
     
     us = mlu.clustering_encoding(us,'prediction')
     
-    st.write(us.to_dict())
-    
     if st.button("Submit"):
-        result = requests.post(f"http://fast_api:8000/predict_personas/",json=us.to_dict()).json()
-        st.write(result)
+        response = requests.post("http://fast_api:8000/predict_personas/",json=us.to_dict(orient='records')[0])
+        if response.status_code == 200:
+            result = response.json()
+            st.write("Prediction:", result)
+        else:
+            st.write("Error in API call: ",response)
     
     
     

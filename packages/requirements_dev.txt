@@ -7,3 +7,4 @@ kmodes==0.12.2
 gower==0.1.2
 ploomber==0.22.0
 pyvis==0.3.1
+gdown==4.6.0

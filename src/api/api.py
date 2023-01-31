@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from kmodes.kprototypes import KPrototypes
 
 import pickle
 import pandas as pd
+import numpy as np
 
 app = FastAPI()
 
@@ -37,12 +38,12 @@ class personas(BaseModel):
     TransactionAmt: float
     num_accounts_related_to_user: float
     num_days_previous_transaction: float
-    ProductCD: object
-    card4: object
-    card6: object
-    DeviceType: object
-    browser_enc: object
-    device_info_v4: object
+    product_enc: int
+    card4_enc: int
+    card6_enc: int
+    DeviceType_enc: int
+    browser_enc2: int
+    device_info_v4_enc: int
 
         
 @app.get('/')
@@ -55,18 +56,15 @@ async def predict_fraud(data: fraud_prediction):
     data = jsonable_encoder(data)
     for key, value in data.items():
         data[key] = [value]
-     # answer_dict = {k:[v] for (k,v) in jsonable_encoder(answer).items()}
     single_instance = pd.DataFrame.from_dict(data)
     prediction = model.predict_proba(single_instance)[:,1]
     return prediction[0]
 
 @app.post("/predict_personas")
-async def predict_personas(data: personas):
-    data = jsonable_encoder(data)
-    for key, value in data.items():
-        data[key] = [value]
-     # answer_dict = {k:[v] for (k,v) in jsonable_encoder(answer).items()}
-    single_instance = pd.DataFrame.from_dict(data)
-#     prediction = clus.predict(X=single_instance,categorical=[3,4,5,6,7,8])
-    return single_instance
+async def predict_personas(data: personas, request: Request):
+    df = pd.DataFrame([data.dict().values()], columns=data.dict().keys())
+    ris = clus.predict(X=df[['TransactionAmt', 'num_accounts_related_to_user', 'num_days_previous_transaction',
+                             'product_enc', 'card4_enc', 'card6_enc', 'DeviceType_enc','browser_enc2','device_info_v4_enc']],categorical=[3,4,5,6,7,8])[0]
+    ris = np.float64(ris)
+    return ris
 
