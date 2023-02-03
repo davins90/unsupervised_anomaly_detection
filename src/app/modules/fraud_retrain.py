@@ -1,29 +1,32 @@
 def main():
+    import sys
+    sys.path.append('../../../')
+    
     import streamlit as st
-    from ploomber import DAG
-    from ploomber.tasks import NotebookRunner
+    import pickle
+    import pandas as pd
+
+    from ploomber_engine import execute_notebook
+
     
     st.title("fraud retrain")
     
-    def run_pipeline():
-        dag.up()
-        # Print log information
-        st.write(dag.render_status())
+    with open("data_lake/output_prod/df_under.pkl","rb") as m:
+        df = pd.read_pickle(m)
         
-        
-    dag = DAG()
+    st.write(df.head(1))
     
-    task1 = NotebookRunner('notebooks/prod_version/2_data_preparation/2.2_data_preparation_v2.ipynb', dag = dag, product='data_lake/output_prod/train.pkl', name='notebook1')
-    task2 = NotebookRunner('notebooks/prod_version/3_features_engineering/3.0_features_eng_v27_12.ipynb', dag, product='',name='notebook2')
     
-    task2.inherit(task1)
+    st.write("Start")
     
-    st.title("Notebook Pipeline")
+    train_dim = st.number_input("sele",step=0.5,value=0.7)
+    val_test_dim = 0.15
+    
 
-    if st.button("Run Pipeline"):
-        run_pipeline()
-        st.success("Pipeline finished running")
-    else:
-        st.info("Click the button to run the pipeline")
+    out = execute_notebook("notebooks/dev_version/2_data_preparation/ploomber_test.ipynb",
+                           "notebooks/dev_version/2_data_preparation/ploomber_test2.ipynb",log_output=True,verbose=True,
+                           parameters={"train_dim":train_dim,
+                                       "val_test_dim":val_test_dim})
 
-    st.graphviz_chart(dag.render_graph())
+    st.write("end")
+
