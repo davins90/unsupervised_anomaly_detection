@@ -6,17 +6,19 @@ def main():
     import plotly.express as px
     import plotly.io as pio
     import prince
+    import gdown
     
     from modules import machine_learning_utils as mlu
     from modules import knowledge_graph_utils as kg
-    from io import BytesIO
+    
     
     st.title("connect")
     
-    file = "https://github.com/davins90/unsupervised_anomaly_detection/blob/master/src/data_lake/output/train_eng.pkl?raw=true"
-
-    db = BytesIO(requests.get(file).content)
-    df = pickle.load(db)
+    # download from gdrive
+    url = "https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link"
+    file_id=url.split('/')[-2]
+    dwn_url='https://drive.google.com/uc?id=' + file_id
+    df = pd.read_pickle(dwn_url)
     
     df = df.astype('object')
     num_col = ["TransactionAmt","num_accounts_related_to_user","num_days_previous_transaction"]
@@ -60,10 +62,12 @@ def main():
     st.plotly_chart(fig)
     
     # 4.0 Network Analysis
-        
-    file = "https://github.com/davins90/unsupervised_anomaly_detection/blob/master/src/data_lake/output_prod/df_under.pkl?raw=true"
-    db2 = BytesIO(requests.get(file).content)
-    df2 = pickle.load(db2)
+    
+    # download from gdrive
+    url = "https://drive.google.com/file/d/1as5pfJ3FuHnJ18BOh1-YRI6J9wemWDdn/view?usp=share_link"
+    file_id=url.split('/')[-2]
+    dwn_url='https://drive.google.com/uc?id=' + file_id
+    df2 = pd.read_pickle(dwn_url)
 
     df2 = mlu.features_eng(df2,'network')
     df2 = df2[['customer_id','TransactionID','TransactionAmt','DeviceType','device_info_v4','browser_enc','ProductCD','isFraud']]

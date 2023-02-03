@@ -6,13 +6,8 @@ def main():
     import gdown
     
     from modules import machine_learning_utils as mlu
-#     from io import BytesIO
     
     st.title("fraud single")
-    
-#     file = "https://github.com/davins90/unsupervised_anomaly_detection/blob/master/src/data_lake/output_prod/train_eng.pkl?raw=true"
-#     db = BytesIO(requests.get(file).content)
-#     df = pickle.load(db)
 
     url = "https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link"
     file_id=url.split('/')[-2]

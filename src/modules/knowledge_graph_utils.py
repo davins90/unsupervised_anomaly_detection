@@ -93,4 +93,4 @@ def building_network(final,final2,df,num):
     "solver": "repulsion"
   }
 }""")
-    return net.show("kg_v29_{}.html".format(num))
+    return net.show("kg_{}.html".format(num))

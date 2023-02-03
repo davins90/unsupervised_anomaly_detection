@@ -6,22 +6,9 @@ def main():
     import gdown
     
     from modules import machine_learning_utils as mlu
-#     from io import BytesIO
     
     st.title("pers single")
-    
-#     with open("app/modules/models/clustering_imputation_cat.pkl","rb") as imc:
-#         imputation_cat = pickle.load(imc)
 
-#     with open("app/modules/models/clustering_imputation_num.pkl","rb") as imn:
-#         imputation_num = pickle.load(imn)
-
-#     with open("app/modules/models/clustering_scaler_num.pkl","rb") as sn:
-#         scaler_num = pickle.load(sn)
-    
-#     file = "https://github.com/davins90/unsupervised_anomaly_detection/blob/master/src/data_lake/output_prod/train.pkl?raw=true"
-#     db = BytesIO(requests.get(file).content)
-#     df = pickle.load(db)
     
     url = "https://drive.google.com/file/d/1av3XEv59qOykE8v7tDu6GBJFbIkABiC8/view?usp=share_link"
     file_id=url.split('/')[-2]
@@ -64,12 +51,8 @@ def main():
     us = pd.DataFrame(user)
     
     st.write(us.to_dict())
-#     us = mlu.clustering_preparation(us,'prediction',imputation_num,scaler_num,imputation_cat)
-    
-#     us = mlu.clustering_encoding(us,'prediction')
     
     if st.button("Submit"):
-#         response = requests.post("http://fast_api:8000/predict_personas/",json=us.to_dict(orient='records')[0])
         response = requests.post("http://fast_api:8000/predict_personas/",json=us.to_dict())
         if response.status_code == 200:
             result = response.json()
