@@ -1,18 +1,14 @@
 def main():
     import streamlit as st
-    import pickle
     import requests
     import pandas as pd
-    import gdown
     
     from modules import machine_learning_utils as mlu
+    from modules import utils
     
     st.title("fraud single")
-
-    url = "https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link"
-    file_id=url.split('/')[-2]
-    dwn_url='https://drive.google.com/uc?id=' + file_id
-    df = pd.read_pickle(dwn_url)
+    
+    df = utils.data_retrieval("https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link")
     
     cols = ['card1', 'card2', 'card3','card5','M4', 'id_21', 'id_22', 'id_23', 'id_24', 'id_25',
        'id_26', 'id_27', 'id_28', 'id_29', 'id_30', 'id_32', 'id_33', 'id_34',

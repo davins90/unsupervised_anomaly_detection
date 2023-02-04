@@ -1,19 +1,14 @@
 def main():
     import streamlit as st
-    import pickle
     import requests
     import pandas as pd
-    import gdown
     
     from modules import machine_learning_utils as mlu
+    from modules import utils
     
     st.title("pers single")
 
-    
-    url = "https://drive.google.com/file/d/1av3XEv59qOykE8v7tDu6GBJFbIkABiC8/view?usp=share_link"
-    file_id=url.split('/')[-2]
-    dwn_url='https://drive.google.com/uc?id=' + file_id
-    df = pd.read_pickle(dwn_url)
+    df = utils.data_retrieval("https://drive.google.com/file/d/1av3XEv59qOykE8v7tDu6GBJFbIkABiC8/view?usp=share_link")
     
     df = mlu.features_eng(df,'clustering')
     

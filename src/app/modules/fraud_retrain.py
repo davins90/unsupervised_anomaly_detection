@@ -1,32 +1,38 @@
 def main():
-    import sys
-    sys.path.append('../../../')
-    
     import streamlit as st
     import pickle
     import pandas as pd
 
     from ploomber_engine import execute_notebook
 
+    st.title("Retraining Fraud Detection model")
     
-    st.title("fraud retrain")
+    st.write("Start Data Preparation")
     
-    with open("data_lake/output_prod/df_under.pkl","rb") as m:
-        df = pd.read_pickle(m)
-        
-    st.write(df.head(1))
-    
-    
-    st.write("Start")
-    
-    train_dim = st.number_input("sele",step=0.5,value=0.7)
+    train_dim = st.number_input("Select dimension of the training set (%)",step=0.5,value=0.7)
     val_test_dim = 0.15
     
 
-    out = execute_notebook("notebooks/dev_version/2_data_preparation/ploomber_test.ipynb",
-                           "notebooks/dev_version/2_data_preparation/ploomber_test2.ipynb",log_output=True,verbose=True,
+    out = execute_notebook("app/notebooks/input/2.0_data_preparation_input.ipynb",
+                           "app/notebooks/output/2.0_data_preparation_output.ipynb",log_output=True,verbose=True,
                            parameters={"train_dim":train_dim,
                                        "val_test_dim":val_test_dim})
 
-    st.write("end")
+    st.write("End Data Preparation")
+    
+    st.write("Start Features Engineering")
+    
+    out2 = execute_notebook("app/notebooks/input/3.0_features_eng_input.ipynb",
+                            "app/notebooks/output/3.0_features_eng_output.ipynb",log_output=True,verbose=True)
+    
+    st.write("End Features Enginnering")
+    
+    
+    st.write("Start Traininig model")
+    
+    out3 = execute_notebook("app/notebooks/input/4.0_training_evaluation_input.ipynb",
+                            "app/notebooks/output/4.0_training_evaluation_output.ipynb",log_output=True,verbose=True)
+    
+    st.write("End Training model")
+    
 

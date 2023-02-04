@@ -1,4 +1,9 @@
 import streamlit as st
+import pandas as pd
+import gdown
+import pickle
+
+###
 
 def add_menu_title():
     """
@@ -19,4 +24,14 @@ def add_menu_title():
         """,
         unsafe_allow_html=True,
     )
+    
+def data_retrieval(url):
+    """
+    
+    """
+    # download from gdrive
+    file_id=url.split('/')[-2]
+    dwn_url='https://drive.google.com/uc?id=' + file_id
+    df = pd.read_pickle(dwn_url)
+    return df
             

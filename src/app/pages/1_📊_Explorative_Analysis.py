@@ -18,7 +18,7 @@ utils.add_menu_title()
 st.image(app_logo)
 st.markdown("# Explorative Analysis")
 
-pages = option_menu(None, ["Local Upload", "Connect to DB"],icons=['upload','cloud-download'], menu_icon="cast", default_index=0, orientation="horizontal")
+pages = option_menu(None, ["Connect to DB","Local Upload"],icons=['cloud-download','upload'], menu_icon="cast", default_index=0, orientation="horizontal")
 
 if pages == "Local Upload":
     ex_local_upload.main()

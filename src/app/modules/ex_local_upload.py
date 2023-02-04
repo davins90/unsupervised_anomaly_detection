@@ -6,11 +6,10 @@ def main():
     import prince
     import requests
     import pickle
-    import gdown
     
     from modules import machine_learning_utils as mlu
     from modules import knowledge_graph_utils as kg
-    
+    from modules import utils
     
     st.title("local")
     file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx", "pkl"])
@@ -70,10 +69,8 @@ def main():
         # 4.0 Network Analysis
         
         # download from gdrive
-        url = "https://drive.google.com/file/d/1as5pfJ3FuHnJ18BOh1-YRI6J9wemWDdn/view?usp=share_link"
-        file_id=url.split('/')[-2]
-        dwn_url='https://drive.google.com/uc?id=' + file_id
-        df2 = pd.read_pickle(dwn_url)
+        
+        df2 = utils.data_retrieval("https://drive.google.com/file/d/1as5pfJ3FuHnJ18BOh1-YRI6J9wemWDdn/view?usp=share_link")
         
         df2 = mlu.features_eng(df2,'network')
         df2 = df2[['customer_id','TransactionID','TransactionAmt','DeviceType','device_info_v4','browser_enc','ProductCD','isFraud']]
@@ -108,4 +105,6 @@ def main():
         final2 = kg.building_adj_list(dt2,df3)
         
         kg.building_network(final,final2,df2)
+    else:
+        st.warning("Still necessary build sample file for testing. Doing random sample of original dataframe after merging.")
         

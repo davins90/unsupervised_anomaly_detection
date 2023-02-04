@@ -6,19 +6,16 @@ def main():
     import plotly.express as px
     import plotly.io as pio
     import prince
-    import gdown
+    
     
     from modules import machine_learning_utils as mlu
     from modules import knowledge_graph_utils as kg
+    from modules import utils
     
     
     st.title("connect")
     
-    # download from gdrive
-    url = "https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link"
-    file_id=url.split('/')[-2]
-    dwn_url='https://drive.google.com/uc?id=' + file_id
-    df = pd.read_pickle(dwn_url)
+    df = utils.data_retrieval("https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link")
     
     df = df.astype('object')
     num_col = ["TransactionAmt","num_accounts_related_to_user","num_days_previous_transaction"]
@@ -63,11 +60,7 @@ def main():
     
     # 4.0 Network Analysis
     
-    # download from gdrive
-    url = "https://drive.google.com/file/d/1as5pfJ3FuHnJ18BOh1-YRI6J9wemWDdn/view?usp=share_link"
-    file_id=url.split('/')[-2]
-    dwn_url='https://drive.google.com/uc?id=' + file_id
-    df2 = pd.read_pickle(dwn_url)
+    df2 = utils.data_retrieval("https://drive.google.com/file/d/1as5pfJ3FuHnJ18BOh1-YRI6J9wemWDdn/view?usp=share_link")
 
     df2 = mlu.features_eng(df2,'network')
     df2 = df2[['customer_id','TransactionID','TransactionAmt','DeviceType','device_info_v4','browser_enc','ProductCD','isFraud']]
