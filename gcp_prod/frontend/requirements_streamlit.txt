@@ -1,0 +1,13 @@
+streamlit==1.13.0
+plotly==5.11.0
+streamlit-option-menu==0.3.2
+ploomber==0.22.0
+plotly==5.11.0
+catboost==1.1.1
+prince==0.7.1
+kmodes==0.12.2
+gower==0.1.2
+ploomber==0.22.0
+pyvis==0.3.1
+gdown==4.6.0
+ploomber-engine==0.0.20
