@@ -14,5 +14,5 @@ ENV PORT 8000
 
 # EXPOSE 8000:8000
 
-CMD [ "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+# CMD [ "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
 CMD exec uvicorn api:app --host 0.0.0.0 --port ${PORT} --workers 1
