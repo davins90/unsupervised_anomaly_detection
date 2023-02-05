@@ -13,7 +13,7 @@ app = FastAPI()
 
 # Load Model
 
-with open("./trained_model_v2.pkl","rb") as m:
+with open("trained_model_v2.pkl","rb") as m:
     model = pickle.load(m)
     
 with open("clustering_model_v1.pkl","rb") as cm:
