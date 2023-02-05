@@ -7,7 +7,8 @@ from typing import List
 import pickle
 import pandas as pd
 import numpy as np
-from api import machine_learning_utils as mlu
+import machine_learning_utils as mlu
+# from api import machine_learning_utils as mlu
 
 app = FastAPI()
 
