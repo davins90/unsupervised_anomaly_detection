@@ -8,30 +8,29 @@ import pickle
 import pandas as pd
 import numpy as np
 import machine_learning_utils as mlu
-# from api import machine_learning_utils as mlu
 
 app = FastAPI()
 
 # Load Model
 
-with open("api/trained_model_v2.pkl","rb") as m:
+with open("trained_model_v2.pkl","rb") as m:
     model = pickle.load(m)
     
-with open("api/clustering_model_v1.pkl","rb") as cm:
+with open("clustering_model_v1.pkl","rb") as cm:
     clus = pickle.load(cm)
     
 # Load scalers and imputations
 
-with open("api/clustering_imputation_cat.pkl","rb") as imc:
+with open("clustering_imputation_cat.pkl","rb") as imc:
     imputation_cat = pickle.load(imc)
 
-with open("api/clustering_imputation_num.pkl","rb") as imn:
+with open("clustering_imputation_num.pkl","rb") as imn:
     imputation_num = pickle.load(imn)
 
-with open("api/clustering_scaler_num.pkl","rb") as sn:
+with open("clustering_scaler_num.pkl","rb") as sn:
     scaler_num = pickle.load(sn)
 
-with open("api/log_scaler_bi.pkl","rb") as ls:
+with open("log_scaler_bi.pkl","rb") as ls:
     scaler_bi = pickle.load(ls)
     
 # Methods
