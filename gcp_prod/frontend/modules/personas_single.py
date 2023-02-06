@@ -48,7 +48,7 @@ def main():
     st.write(us.to_dict())
     
     if st.button("Submit"):
-        response = requests.post("https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_personas/",json=us.to_dict())
+        response = requests.post("https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_personas",json=us.to_dict())
         if response.status_code == 200:
             result = response.json()
             st.write("Prediction:", result)

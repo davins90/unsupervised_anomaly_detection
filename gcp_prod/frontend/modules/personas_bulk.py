@@ -35,5 +35,5 @@ def main():
     st.write(df.head(1))
     
     if st.button("Submit"):
-        ris = requests.post(f"https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_personas_bulk/",json=df.to_dict())
+        ris = requests.post(f"https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_personas_bulk",json=df.to_dict())
         st.write(ris.json())
