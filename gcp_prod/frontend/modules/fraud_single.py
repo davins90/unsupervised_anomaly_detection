@@ -36,8 +36,8 @@ def main():
             
     
     if st.button("Submit"):
-        ris_ml = requests.post(f"http://fast_api:8000/predict_fraud_ml/",json=features).json()
-        ris_hk = requests.post(f"http://fast_api:8000/predict_fraud_hk/",json=features).json()
+        ris_ml = requests.post(f"https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_fraud_ml/",json=features).json()
+        ris_hk = requests.post(f"https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_fraud_hk/",json=features).json()
         st.write("ris ml: ",ris_ml)
         st.write("ris hk: ",ris_hk)
         final_score = mlu.beta_fusion(ris_ml,ris_hk,0.6)

@@ -8,8 +8,8 @@ from streamlit_option_menu import option_menu
 
 ###
 
-app_logo = Image.open("app/images/logo.png")
-icon = Image.open("app/images/icon.ico")
+app_logo = Image.open("images/logo.png")
+icon = Image.open("images/icon.ico")
 
 st.set_page_config(page_title="DIA - Explorative Analysis", layout="wide", page_icon=icon)
 

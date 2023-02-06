@@ -7,8 +7,8 @@ from modules import fraud_single, fraud_bulk, fraud_retrain
 
 ###
 
-app_logo = Image.open("app/images/logo.png")
-icon = Image.open("app/images/icon.ico")
+app_logo = Image.open("images/logo.png")
+icon = Image.open("images/icon.ico")
 
 st.set_page_config(page_title="DIA - Fraud Analysis", layout="wide", page_icon=icon)
 

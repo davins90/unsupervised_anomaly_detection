@@ -8,8 +8,8 @@ from modules import personas_single, personas_bulk, personas_retrain
 
 ###
 
-app_logo = Image.open("app/images/logo.png")
-icon = Image.open("app/images/icon.ico")
+app_logo = Image.open("images/logo.png")
+icon = Image.open("images/icon.ico")
 
 st.set_page_config(page_title="DIA - Customer Personas", layout="wide", page_icon=icon)
 

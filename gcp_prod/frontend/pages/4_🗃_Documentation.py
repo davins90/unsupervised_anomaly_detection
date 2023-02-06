@@ -5,8 +5,8 @@ from modules import utils
 
 ###
 
-app_logo = Image.open("app/images/logo.png")
-icon = Image.open("app/images/icon.ico")
+app_logo = Image.open("images/logo.png")
+icon = Image.open("images/icon.ico")
 
 st.set_page_config(page_title="DIA - Docs", layout="wide", page_icon=icon)
 

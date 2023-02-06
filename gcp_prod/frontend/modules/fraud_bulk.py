@@ -35,5 +35,5 @@ def main():
 
     
     if st.button("Submit"):
-        ris = requests.post(f"http://fast_api:8000/predict_fraud_bulk/",json=X_test.to_dict())
+        ris = requests.post(f"https://backend-4b-ylpi3mxsaq-oc.a.run.app/predict_fraud_bulk/",json=X_test.to_dict())
         st.write(ris.json())
