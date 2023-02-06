@@ -100,5 +100,5 @@ def building_network(final,final2,df):
         net.save_graph(f'{path}/pyvis_graph.html')
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
     except:
-        HtmlFile = open(f'app/modules/models/kg_v29_11.html', 'r', encoding='utf-8')
+        HtmlFile = open(f'modules/models/kg_v29_11.html', 'r', encoding='utf-8')
     return components.html(HtmlFile.read(), height=900)
