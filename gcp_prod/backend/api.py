@@ -70,7 +70,7 @@ def get_root():
     
 # Fraud detection
     
-@app.get("/predict_fraud_ml")
+@app.post("/predict_fraud_ml")
 async def predict_fraud_ml(data: fraud_prediction):
     data = jsonable_encoder(data)
     for key, value in data.items():
@@ -79,7 +79,7 @@ async def predict_fraud_ml(data: fraud_prediction):
     prediction = model.predict_proba(single_instance)[:,1]
     return prediction[0]
 
-@app.get("/predict_fraud_hk")
+@app.post("/predict_fraud_hk")
 async def predict_fraud_hk(data: fraud_prediction):
     df = pd.DataFrame([data.dict().values()], columns=data.dict().keys())
     df = mlu.log_beta_transform(df,scaler_bi,'num_accounts_related_to_user','num_days_previous_transaction')
@@ -87,7 +87,7 @@ async def predict_fraud_hk(data: fraud_prediction):
     return df['warning_score'][0]
 
 
-@app.get("/predict_fraud_bulk")
+@app.post("/predict_fraud_bulk")
 async def predict_fraud_bulk(data: dict):
     df = pd.DataFrame.from_dict(data)
     print(df.shape)
@@ -106,7 +106,7 @@ async def predict_fraud_bulk(data: dict):
 
 # Clustering
 
-@app.get("/predict_personas")
+@app.post("/predict_personas")
 # async def predict_personas(data: personas, request: Request):
 async def predict_personas(data: dict, request: Request):
     print(data)
@@ -119,7 +119,7 @@ async def predict_personas(data: dict, request: Request):
     ris = np.float64(ris)
     return ris
 
-@app.get("/predict_personas_bulk")
+@app.post("/predict_personas_bulk")
 async def predict_personas_bulk(data: dict, request: Request):
     df = pd.DataFrame.from_dict(data)
     df = mlu.clustering_preparation(df,'prediction',imputation_num,scaler_num,imputation_cat)
