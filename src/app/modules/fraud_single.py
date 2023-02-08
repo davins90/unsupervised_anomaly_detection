@@ -6,7 +6,8 @@ def main():
     from modules import machine_learning_utils as mlu
     from modules import utils
     
-    st.title("fraud single")
+    st.markdown("## Single Transaction prediction")
+    st.write("By filling out the following form with data from the transactions under consideration, three different fraud scores can be obtained: \n - the first one as the output of the processed machine-learning model; \n - the second as the output of a rule-based model, designed based on the investigators' knowledge; \n - the third, final, is a Bayesian-averaged score of the previous two.")
     
     df = utils.data_retrieval("https://drive.google.com/file/d/1axLbIYAxQbVnLQPNfEFfCyg_Eq5XSioi/view?usp=share_link")
     
@@ -22,23 +23,32 @@ def main():
     for i in df:
         if i in num_col:
             df[i] = df[i].astype(float)
-    
+            
+    st.markdown("### Input form")
+    form = st.form(key='my_form')
     features = dict()
-    
-
     for i,j in enumerate(df):
         if j == "isFraud":
             pass
         elif j in num_col:
-            features[j] = st.number_input('Insert number for {} related to the transaction under examination: '.format(j),key=i)
+            features[j] = form.number_input('Insert number for {} related to the transaction under examination: '.format(j),key=i)
         else:
-            features[j] = st.selectbox("Select type of {} related to the transaction: ".format(j),df[j].unique(),key=i)
-            
+            features[j] = form.selectbox("Select type of {} related to the transaction: ".format(j),df[j].unique(),key=i)
     
-    if st.button("Submit"):
+    submit_button = form.form_submit_button(label='Submit')
+            
+    if submit_button is True:
         ris_ml = requests.post(f"http://fast_api:8000/predict_fraud_ml/",json=features).json()
         ris_hk = requests.post(f"http://fast_api:8000/predict_fraud_hk/",json=features).json()
-        st.write("ris ml: ",ris_ml)
-        st.write("ris hk: ",ris_hk)
         final_score = mlu.beta_fusion(ris_ml,ris_hk,0.6)
-        st.write(final_score)
+
+        st.markdown("### Output")
+        
+        st.write("Score from the Machine Learning tool: ")
+        utils.gauge_chart(ris_ml)
+        
+        st.write("Score from the rule based tool: ")
+        utils.gauge_chart(ris_hk)
+        
+        st.write("Final score: ")
+        utils.gauge_chart(final_score)

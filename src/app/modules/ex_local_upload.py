@@ -11,7 +11,7 @@ def main():
     from modules import knowledge_graph_utils as kg
     from modules import utils
     
-    st.title("local")
+    st.markdown("## Data Retrieval")
     file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx", "pkl"])
 
     if file is not None:
@@ -106,5 +106,5 @@ def main():
         
         kg.building_network(final,final2,df2)
     else:
-        st.warning("Still necessary build sample file for testing. Doing random sample of original dataframe after merging.")
+        st.warning("Still necessary build sample file for testing. Doing random sample of original dataframe after merging. Refactoring also of the wording of this pages according to the connect page.")
         

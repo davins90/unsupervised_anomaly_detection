@@ -2,17 +2,29 @@ def main():
     import streamlit as st
     import pandas as pd
     import requests
+    import plotly.express as px
     
     from modules import machine_learning_utils as mlu
     from modules import utils
     
-    st.title("perso bulk")
+    st.markdown("## Bulk Personas Prediction")
+    st.write("On this page, at the current state, we are automatically connected to the database and the prediction of the cluster to which each customer belongs is computed with a dedicated API.Below is a sample of the DB data. Following there are the description of each cluster (personas).")
     
     # download from gdrive
     
     df = utils.data_retrieval("https://drive.google.com/file/d/1av_NaF0lQqhQOJewFA0NgRzEl9M9Qfgv/view?usp=share_link")
     
-    st.write(df.head(1))
+    st.write(df.head(2))
+    
+    st.markdown("## Clusters Personas Description")
+    st.write("#### Cluster 0: Regular Desktop User with Credit Card")
+    st.write("This cluster represents a user who regularly makes transactions using a desktop computer with the Chrome browser and Windows operating system. They have a moderate number of connected accounts and have a moderate time interval between transactions. This user utilizes a VISA credit card for purchasing type 'C' products.")
+    st.write("#### Cluster 1: Occasional High-Value Desktop User with Debit Card")
+    st.write("This cluster represents a user who occasionally makes high-value transactions using a desktop computer with the Chrome browser and Windows operating system. They have a moderate number of connected accounts and a high time interval between transactions. This user utilizes a VISA debit card for purchasing type 'R' products.")
+    st.write("#### Cluster 2: Frequent Low-Value Mobile User with Debit Card")
+    st.write("This cluster represents a user who frequently makes low-value transactions using a mobile device with the Chrome browser and an 'OTHER' operating system. They have a high number of connected accounts and a moderate time interval between transactions. This user utilizes a VISA debit card for purchasing type 'C' products. **This seems to be the cluster in which the most 'mysterious' customers are present, among whom we find some of the possible fraudsters**.")
+    st.write("#### Cluster 3: Occasional High-Value Mobile User with Credit Card")
+    st.write("This cluster represents a user who occasionally makes high-value transactions using a mobile device with the Safari browser and IOS operating system. They have a low number of connected accounts and a low time interval between transactions. This user utilizes a VISA credit card for purchasing type 'H' products.")
     
     df = mlu.features_eng(df,'clustering')
     
@@ -31,9 +43,18 @@ def main():
     for i in df:
         if i in num_col:
             df[i] = df[i].astype(float)
-            
-    st.write(df.head(1))
+    
+    st.write("Below a sample of the data prepared and engineered, ready for the prediction. ")
+    st.write(df.head(2))
     
     if st.button("Submit"):
         ris = requests.post(f"http://fast_api:8000/predict_personas_bulk/",json=df.to_dict())
-        st.write(ris.json())
+        risu = pd.DataFrame(ris.json())
+        sub = risu.filter(regex='cluster_labels_pred',axis=1)
+        st.write("Once the prediction is completed, here is the distribution of the three calculated results below.")
+        sub2 = sub['cluster_labels_pred'].value_counts().reset_index()
+        sub2 = sub2.rename(columns={'index':'cluster_predicted','cluster_labels_pred':'count'})
+        
+        fig = px.bar(sub2,x='cluster_predicted',y='count')
+        fig.show()
+        st.plotly_chart(fig)
