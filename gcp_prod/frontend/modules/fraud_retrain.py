@@ -21,8 +21,7 @@ def main():
     
         st.markdown("#### Start Data Preparation")
 
-        out = execute_notebook("notebooks/input/2.0_data_preparation_input.ipynb",
-                               "notebooks/output/2.0_data_preparation_output.ipynb",log_output=True,verbose=True,
+        out = execute_notebook("notebooks/input/2.0_data_preparation_input.ipynb",None,log_output=True,verbose=True,
                                parameters={"train_dim":train_dim,
                                            "val_test_dim":val_test_dim})
 
@@ -30,16 +29,14 @@ def main():
 
         st.markdown("#### Start Features Engineering")
 
-        out2 = execute_notebook("notebooks/input/3.0_features_eng_input.ipynb",
-                                "notebooks/output/3.0_features_eng_output.ipynb",log_output=True,verbose=True)
+        out2 = execute_notebook("notebooks/input/3.0_features_eng_input.ipynb",None,log_output=True,verbose=True)
 
         st.markdown("#### End Features Enginnering")
 
 
         st.markdown("#### Start Traininig model")
 
-        out3 = execute_notebook("notebooks/input/4.0_training_evaluation_input.ipynb",
-                                "notebooks/output/4.0_training_evaluation_output.ipynb",log_output=True,verbose=True,
+        out3 = execute_notebook("notebooks/input/4.0_training_evaluation_input.ipynb",None,log_output=True,verbose=True,
                                parameters={"max_depth_model":max_depth_model,
                                            "max_number_estimator":max_number_estimator})
 
