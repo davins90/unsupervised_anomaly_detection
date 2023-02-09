@@ -45,7 +45,7 @@ Technologically speaking, the development of the project can be divided into two
 An image of the code written to perform model training is shown below. To avoid data leakage problems, it was decided to use [Sklearn's Pipeline class](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) to perform the transformation operations on the training set.
 Then with the [Grid Search class](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) and a set of parameters from which to search for the best alternative, we obtain the final model to be used. The [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html) was chosen as the algorithm, which is a robust, accurate solution and, due to its adaptive nature, is able to improve and correct itself during training. I had to generate as output the probability of belonging to a given class, it was necessary to perform calibration of the model used, so as to refine its prediction capabilities.
 
-[image pipeline](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/pipeline_sklearn.png)
+![image pipeline](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/pipeline_sklearn.png)
 
 Regarding this section, within the built web app, a page was implemented that was useful for performing model retraining based on other parameters entered as input.
 This step was made possible through the [Ploomber Engine library](https://github.com/ploomber/ploomber-engine), through which it is possible from a python file to re-run jupyter notebooks and pass parameters that interact with notebooks. This is an alternative approach the the widly use Apache Airflow scheduler.
@@ -53,7 +53,7 @@ This step was made possible through the [Ploomber Engine library](https://github
 ## 4.1) Metrics
 Recall was chosen as the metric for model evaluation and optimization. This choice is dictated by the fact that the cost of false negatives, that is, of predicting as "not fraudulent" a transaction that actually is, is greater than the cost of false positives. 
 
-[image confusion matrix](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/confusion_matrix.png)
+![image confusion matrix](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/confusion_matrix.png)
 
 # 5) Web App Development
 The development of the demo designed for the project, as written earlier, sees the existence of a backend (Fast Api) and a frontend (Streamlit). With regard to the backend, five POST endpoints were constructed that serve the following purposes:
