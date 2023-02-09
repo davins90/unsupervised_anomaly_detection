@@ -24,7 +24,7 @@ Technologically speaking, the development of the project can be divided into two
 # 3) Modeling pipeline
 - **Data ingestion**: in the context of this project, this step consisted of creating the dataset after retrieving it from the source reported by Amazon Science. Once retrieved it was filtered by some fields to make it as generalist as possible to the case at hand. This is a dataset of structured data (both categorical and continuous) in which there is a label on the transaction, if it is or it isn't a fraud.
 - **EDA**: A distinction needs to be made for the exploration phase on the data:
-    - continuous data have a strong asymmetry, which will be appropriate to deal with later;
+    - continuous data have a strong asymmetry, which will be appropriate to deal with later with a log-transofrmation;
     - for categorical data on the other hand, which are the majority, through the factorial analysis offered by [MCA](https://en.wikipedia.org/wiki/Multiple_correspondence_analysis), it is possible to observe the relationships that exist between them and find out if already at this stage relationships and patterns emerge, useful for our purposes. 
     - Wanting to extend the analysis not only to the individual subjects under examination (the fraudulent transactions), but to the relationships between them, it was thought to construct a [knowledge graph](https://en.wikipedia.org/wiki/Knowledge_graph) useful for highlighting patterns based on the specially created relationships between the identified nodes.
 - **Data preparation**: after obtaining the "fac-simile" dataset of an official dataset, the strong imbalance in the class being predicted became apparent. Three different datasets were generated before rebalancing: the one useful for training, validation phase and testing. To make sure that no distribution shift is present, the adversarial validation procedure was used to check the similarity between the two datasets. Having ascertained this step, undersampling of the majority class on the training set was performed to remedy the imbalance, a decision that in the trade-off between loss of information and addition of bias (with oversampling or artificial data) seemed best.
@@ -45,7 +45,7 @@ Technologically speaking, the development of the project can be divided into two
 An image of the code written to perform model training is shown below. To avoid data leakage problems, it was decided to use [Sklearn's Pipeline class](https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html) to perform the transformation operations on the training set.
 Then with the [Grid Search class](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) and a set of parameters from which to search for the best alternative, we obtain the final model to be used. The [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html) was chosen as the algorithm, which is a robust, accurate solution and, due to its adaptive nature, is able to improve and correct itself during training. I had to generate as output the probability of belonging to a given class, it was necessary to perform calibration of the model used, so as to refine its prediction capabilities.
 
-image pipeline
+[image pipeline](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/pipeline_sklearn.png)
 
 Regarding this section, within the built web app, a page was implemented that was useful for performing model retraining based on other parameters entered as input.
 This step was made possible through the [Ploomber Engine library](https://github.com/ploomber/ploomber-engine), through which it is possible from a python file to re-run jupyter notebooks and pass parameters that interact with notebooks. This is an alternative approach the the widly use Apache Airflow scheduler.
@@ -53,7 +53,7 @@ This step was made possible through the [Ploomber Engine library](https://github
 ## 4.1) Metrics
 Recall was chosen as the metric for model evaluation and optimization. This choice is dictated by the fact that the cost of false negatives, that is, of predicting as "not fraudulent" a transaction that actually is, is greater than the cost of false positives. 
 
-image confusion matrix
+[image confusion matrix](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/confusion_matrix.png)
 
 # 5) Web App Development
 The development of the demo designed for the project, as written earlier, sees the existence of a backend (Fast Api) and a frontend (Streamlit). With regard to the backend, five POST endpoints were constructed that serve the following purposes:
@@ -101,4 +101,6 @@ Future developments of this work may be:
     - Variational Auto Encoder and transformer
     - GNN to take full advantage of the constructed graph structure, at present only for exploratory purposes. 
     - enhancing clustering model with other approaches and other features by looking at the features importances from the classification model.
+- Problems:
+    - here two links for addressing problem on the visualizaion of matplotlib chart inside streamlit after deployment on GCP Cloud Run ([one](https://github.com/streamlit/streamlit/issues/1294), [two](https://cloud.google.com/run/docs/configuring/session-affinity?hl=it))
 
