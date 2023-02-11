@@ -10,6 +10,10 @@ With this purpose therefore, this project was implemented:
 
 A note on the work: since no initial dataset was provided that was deemed adequate for the purpose, a dataset found among those provided by [AWS in its folder](https://github.com/amazon-science/fraud-dataset-benchmark) was used for development. In this way, what is intended to emerge with this work is more than an already operational solution for the client, a **methodological approach** that can be adapt and make work on an official database.
 
+The following are the links to the deployed solutions:
+    - [frontend application](https://frontend-4b-ylpi3mxsaq-oc.a.run.app/)
+    - [backend API endpoints](https://backend-4b-ylpi3mxsaq-oc.a.run.app/docs)
+
 # 2) Tech environment
 Technologically speaking, the development of the project can be divided into two phases.
 - The first, development, in which three docker containers managed by a single orchestrator ([docker-compose](https://docs.docker.com/compose/)) were used. Below are the specifications of the three containers:
@@ -95,6 +99,7 @@ Future developments of this work may be:
     - improve usability and the ability to give input of other parameters
     - moving files and templates from Google Drive to Cloud Storage.
     - better integrate Ploomber.
+    - Authetication layer for the fraud and marketing teams with this [Streamlit component](https://github.com/mkhorasani/Streamlit-Authenticator)
 - In terms of modeling:
     - try naive Bayes as an algorithm, through a solution that can handle data of different types
     - HGB, as an alternative boosting algorithmù
