@@ -92,6 +92,8 @@ To replicate this project locally, once you have downloaded the folder, with doc
     - fast api: 8000/docs
 - docker compose down: to tunr off the service
 
+![Here the image of the diagram of the overall solution](https://github.com/davins90/unsupervised_anomaly_detection/blob/master/decision_intelligence_application_3.png)
+
 
 # 7) Notes and future development
 Future developments of this work may be:
