@@ -112,5 +112,5 @@ Future developments of this work may be:
     - here two links for addressing problem on the visualizaion of matplotlib chart inside streamlit after deployment on GCP Cloud Run ([one](https://github.com/streamlit/streamlit/issues/1294), [two](https://cloud.google.com/run/docs/configuring/session-affinity?hl=it))
 
 # 8) GPC related Notes
-- Change autoscale to 0 in Cloud Run services for both backend and frontend --> this shoudl reduce costs from having set previously to 1.
+- Change autoscale to 0 in Cloud Run services for both backend and frontend --> this should reduce costs from having set previously to 1.
 
